@@ -122,6 +122,7 @@ int main(int argc, char **argv) {
     }
 
     path = *argv;
+    argc -= 1;
     argv += 1;
 
     if(chdir(path) == -1) {
