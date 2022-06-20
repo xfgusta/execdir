@@ -5,28 +5,28 @@
 #include <errno.h>
 
 char *argv_to_str(int argc, char **argv) {
-    char *cmd;
-    size_t cmd_len = 0;
+    char *str;
+    size_t str_len = 0;
 
     for(int i = 0; i < argc; i++) {
-        cmd_len += strlen(argv[i]);
+        str_len += strlen(argv[i]);
 
         if(i + 1 != argc)
-            cmd_len++;
+            str_len++;
     }
 
-    cmd = calloc(1, cmd_len + 1);
-    if(!cmd)
+    str = calloc(1, str_len + 1);
+    if(!str)
         return NULL;
 
     for(int i = 0; i < argc; i++) {
-        strcat(cmd, argv[i]);
+        strcat(str, argv[i]);
 
         if(i + 1 != argc)
-            strcat(cmd, " ");
+            strcat(str, " ");
     }
 
-    return cmd;
+    return str;
 }
 
 int sh_exec_cmd(int argc, char **argv) {
