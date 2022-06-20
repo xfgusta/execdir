@@ -5,7 +5,7 @@
 #include <errno.h>
 #include <getopt.h>
 
-#define USAGE   "Usage: execdir [--help] [--version] [path] [command...]"
+#define USAGE   "Usage: execdir [--help] [--version] [-s] [path] [command...]"
 #define VERSION "0.1.0"
 
 char *argv_to_str(int argc, char **argv) {
@@ -74,8 +74,9 @@ void usage_message() {
 void help_message() {
     printf(USAGE "\n\n"
            "Options:\n"
-           "  --help     display this help and exit\n"
-           "  --version  output version information and exit\n\n"
+           "  --help       display this help and exit\n"
+           "  --version    output version information and exit\n"
+           "  -s, --shell  execute the command as a shell command\n\n"
            "Report bugs to <https://github.com/xfgusta/execdir/issues>\n");
     exit(0);
 }
@@ -84,19 +85,22 @@ int main(int argc, char **argv) {
     int opt;
     int opt_index = 0;
     char *path;
-    int shell_exec = 0;
-    int help_opt, version_opt;
+    int help_opt, version_opt, sh_exec_opt;
 
-    help_opt = version_opt = 0;
+    help_opt = version_opt = sh_exec_opt = 0;
 
     struct option long_opts[] = {
         {"help",    no_argument, &help_opt,    1},
         {"version", no_argument, &version_opt, 1},
+        {"shell",   no_argument, &sh_exec_opt, 1},
         {0,         0,           0,            0}
     };
 
-    while((opt = getopt_long(argc, argv, "", long_opts, &opt_index)) != -1) {
+    while((opt = getopt_long(argc, argv, "s", long_opts, &opt_index)) != -1) {
         switch(opt) {
+            case 's':
+                sh_exec_opt = 1;
+                break;
             case '?':
                 usage_message();
                 break;
@@ -127,5 +131,5 @@ int main(int argc, char **argv) {
 
     setenv("PWD", path, 1);
 
-    exit(shell_exec ? sh_exec_cmd(argc, argv) : exec_cmd(argv));
+    exit(sh_exec_opt ? sh_exec_cmd(argc, argv) : exec_cmd(argv));
 }
