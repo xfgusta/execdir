@@ -55,7 +55,15 @@ int sh_exec_cmd(int argc, char **argv) {
 }
 
 int exec_cmd(char **argv) {
-    return execvp(*argv, argv);
+    int status;
+
+    status = execvp(*argv, argv);
+    if(status == -1) {
+        fprintf(stderr, "Failed to execute command: %s\n", strerror(errno));
+        exit(1);
+    }
+
+    return status;
 }
 
 void usage_message() {
