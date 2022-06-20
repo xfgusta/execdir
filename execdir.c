@@ -3,6 +3,10 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <getopt.h>
+
+#define USAGE   "Usage: execdir [--help] [--version] [path] [command...]"
+#define VERSION "0.1.0"
 
 char *argv_to_str(int argc, char **argv) {
     char *str;
@@ -54,16 +58,59 @@ int exec_cmd(char **argv) {
     return execvp(*argv, argv);
 }
 
+void usage_message() {
+    fprintf(stderr, USAGE "\n");
+    exit(1);
+}
+
+void help_message() {
+    printf(USAGE "\n\n"
+           "Options:\n"
+           "  --help     display this help and exit\n"
+           "  --version  output version information and exit\n\n"
+           "Report bugs to <https://github.com/xfgusta/execdir/issues>\n");
+    exit(0);
+}
+
 int main(int argc, char **argv) {
+    int opt;
+    int opt_index = 0;
     char *path;
     int shell_exec = 0;
+    int help_opt, version_opt;
 
-    if(argc < 2) {
-        fprintf(stderr, "Usage: execdir [path] [command...]\n");
-        exit(1);
+    help_opt = version_opt = 0;
+
+    struct option long_opts[] = {
+        {"help",    no_argument, &help_opt,    1},
+        {"version", no_argument, &version_opt, 1},
+        {0,         0,           0,            0}
+    };
+
+    while((opt = getopt_long(argc, argv, "", long_opts, &opt_index)) != -1) {
+        switch(opt) {
+            case '?':
+                usage_message();
+                break;
+        }
     }
 
-    path = argv[1];
+    argc -= optind;
+    argv += optind;
+
+    if(help_opt) {
+        help_message();
+    } else if(version_opt) {
+        printf("execdir version %s\n", VERSION);
+        exit(0);
+    }
+
+    if(argc < 2) {
+        usage_message();
+    }
+
+    path = *argv;
+    argv += 1;
 
     if(chdir(path) == -1) {
         fprintf(stderr, "Cannot change directory: %s\n", strerror(errno));
@@ -71,9 +118,6 @@ int main(int argc, char **argv) {
     }
 
     setenv("PWD", path, 1);
-
-    argc -= 2;
-    argv += 2;
 
     exit(shell_exec ? sh_exec_cmd(argc, argv) : exec_cmd(argv));
 }
