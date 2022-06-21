@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -Werror -pedantic -std=gnu11 -O2
+CFLAGS=-Wall -Wextra -Werror -pedantic -std=c11 -O2
 
 PREFIX=/usr/local
 BINDIR=$(PREFIX)/bin
