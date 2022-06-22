@@ -21,6 +21,8 @@ $ execdir -s ~/Desktop echo \$PWD
 /home/xfgusta/Desktop
 ```
 
+There's also a symlink called `xdir`, so you can type less using it.
+
 ## Installation
 
 ### From source
@@ -32,6 +34,7 @@ $ make install
 gcc -Wall -Wextra -Werror -pedantic -std=c11 -O2 execdir.c  -o execdir
 mkdir -p /usr/local/bin
 install -p -m 0755 execdir /usr/local/bin
+ln -s /usr/local/bin/execdir /usr/local/bin/xdir
 ```
 
 You can install `execdir` in a different directory using the `PREFIX` variable:
@@ -41,6 +44,7 @@ $ make PREFIX=/usr install
 gcc -Wall -Wextra -Werror -pedantic -std=c11 -O2 execdir.c  -o execdir
 mkdir -p /usr/bin
 install -p -m 0755 execdir /usr/bin
+ln -s /usr/bin/execdir /usr/bin/xdir
 ```
 
 ## License

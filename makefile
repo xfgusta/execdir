@@ -12,9 +12,11 @@ execdir: execdir.c
 install: execdir
 	mkdir -p $(DESTDIR)$(BINDIR)
 	$(INSTALL) execdir $(DESTDIR)$(BINDIR)
+	ln -s $(DESTDIR)$(BINDIR)/execdir $(DESTDIR)$(BINDIR)/xdir
 
 uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/execdir
+	rm -f $(DESTDIR)$(BINDIR)/xdir
 
 clean:
 	rm -f execdir
