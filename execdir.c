@@ -9,6 +9,7 @@
 #define USAGE   "Usage: execdir [--help] [--version] [-s] [path] [command...]"
 #define VERSION "0.1.0"
 
+// join all the arguments by adding a space between them
 char *argv_to_str(int argc, char **argv) {
     char *str;
     size_t str_len = 0;
@@ -27,6 +28,7 @@ char *argv_to_str(int argc, char **argv) {
     for(int i = 0; i < argc; i++) {
         strcat(str, argv[i]);
 
+        // don't add a space at the end
         if(i + 1 != argc)
             strcat(str, " ");
     }
@@ -108,6 +110,7 @@ int main(int argc, char **argv) {
         }
     }
 
+    // skip to the non-option arguments
     argc -= optind;
     argv += optind;
 
@@ -122,6 +125,7 @@ int main(int argc, char **argv) {
         usage_message();
     }
 
+    // save and skip the path argument
     path = *argv;
     argc -= 1;
     argv += 1;
@@ -131,6 +135,7 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    // set the new path to reflect the directory change
     setenv("PWD", path, 1);
 
     exit(sh_exec_opt ? sh_exec_cmd(argc, argv) : exec_cmd(argv));
