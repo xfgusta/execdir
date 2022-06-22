@@ -37,7 +37,7 @@ char *argv_to_str(int argc, char **argv) {
 }
 
 int sh_exec_cmd(int argc, char **argv) {
-    int status = 0;
+    int status;
     char *cmd;
 
     cmd = argv_to_str(argc, argv);
@@ -88,9 +88,9 @@ int main(int argc, char **argv) {
     int opt;
     int opt_index = 0;
     char *path;
-    int help_opt, version_opt, sh_exec_opt;
-
-    help_opt = version_opt = sh_exec_opt = 0;
+    int help_opt = 0;
+    int version_opt = 0;
+    int sh_exec_opt = 0;
 
     struct option long_opts[] = {
         {"help",    no_argument, &help_opt,    1},
