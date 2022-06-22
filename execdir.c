@@ -6,8 +6,10 @@
 #include <errno.h>
 #include <getopt.h>
 
-#define USAGE   "Usage: execdir [--help] [--version] [-s] [path] [command...]"
+#define USAGE   "Usage: %s [--help] [--version] [-s] [path] [command...]"
 #define VERSION "0.1.0"
+
+char *program_name;
 
 // join all the arguments by adding a space between them
 char *argv_to_str(int argc, char **argv) {
@@ -70,7 +72,7 @@ int exec_cmd(char **argv) {
 }
 
 void usage_message() {
-    fprintf(stderr, USAGE "\n");
+    fprintf(stderr, USAGE "\n", program_name);
     exit(1);
 }
 
@@ -80,7 +82,8 @@ void help_message() {
            "  --help       display this help and exit\n"
            "  --version    output version information and exit\n"
            "  -s, --shell  execute the command as a shell command\n\n"
-           "Report bugs to <https://github.com/xfgusta/execdir/issues>\n");
+           "Report bugs to <https://github.com/xfgusta/execdir/issues>\n",
+           program_name);
     exit(0);
 }
 
@@ -91,6 +94,8 @@ int main(int argc, char **argv) {
     int help_opt = 0;
     int version_opt = 0;
     int sh_exec_opt = 0;
+
+    program_name = argv[0];
 
     struct option long_opts[] = {
         {"help",    no_argument, &help_opt,    1},
