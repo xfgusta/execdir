@@ -11,6 +11,25 @@
 
 char *program_name;
 
+// getcwd wrapper
+char *get_cwd() {
+    char *cwd;
+    long size;
+    char *buf;
+
+    size = pathconf(".", _PC_PATH_MAX);
+    if(size == -1)
+        return NULL;
+
+    buf = malloc(size);
+    if(!buf)
+        return NULL;
+
+    cwd = getcwd(buf, size);
+
+    return cwd;
+}
+
 // join all the arguments by adding a space between them
 char *argv_to_str(int argc, char **argv) {
     char *str;
@@ -90,6 +109,7 @@ void help_message() {
 int main(int argc, char **argv) {
     int opt;
     int opt_index = 0;
+    char *cwd;
     char *path;
     int help_opt = 0;
     int version_opt = 0;
@@ -135,12 +155,19 @@ int main(int argc, char **argv) {
     argc -= 1;
     argv += 1;
 
+    cwd = get_cwd();
+    if(!cwd) {
+        fprintf(stderr, "Cannot get the current working directory\n");
+        exit(1);
+    }
+
     if(chdir(path) == -1) {
         fprintf(stderr, "Cannot change directory: %s\n", strerror(errno));
         exit(1);
     }
 
-    // set the new path to reflect the directory change
+    // set old and new path to reflect the directory change
+    setenv("OLDPWD", cwd, 1);
     setenv("PWD", path, 1);
 
     exit(sh_exec_opt ? sh_exec_cmd(argc, argv) : exec_cmd(argv));
