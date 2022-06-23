@@ -170,5 +170,7 @@ int main(int argc, char **argv) {
     setenv("OLDPWD", cwd, 1);
     setenv("PWD", path, 1);
 
+    free(cwd);
+
     exit(sh_exec_opt ? sh_exec_cmd(argc, argv) : exec_cmd(argv));
 }
