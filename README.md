@@ -25,6 +25,16 @@ There's also a symlink called `xdir`, so you can type less using it.
 
 ## Installation
 
+### Arch Linux
+
+[execdir](https://aur.archlinux.org/packages/execdir) package from AUR
+
+```text
+git clone https://aur.archlinux.org/execdir.git
+cd execdir
+makepkg -si
+```
+
 ### From source
 
 The install directory defaults to `/usr/local`:
