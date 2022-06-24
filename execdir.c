@@ -12,7 +12,7 @@
 char *program_name;
 
 // getcwd wrapper
-char *get_cwd() {
+char *xgetcwd() {
     char *cwd;
     long size;
     char *buf;
@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
     argc -= 1;
     argv += 1;
 
-    cwd = get_cwd();
+    cwd = xgetcwd();
     if(!cwd) {
         fprintf(stderr, "Cannot get the current working directory\n");
         exit(1);
