@@ -35,6 +35,15 @@ cd execdir
 makepkg -si
 ```
 
+### Fedora Linux
+
+[execdir](https://copr.fedorainfracloud.org/coprs/xfgusta/execdir/) package from Copr
+
+```text
+dnf copr enable xfgusta/execdir
+dnf install execdir
+```
+
 ### From source
 
 The install directory defaults to `/usr/local`:
