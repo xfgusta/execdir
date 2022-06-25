@@ -9,6 +9,90 @@
 #define USAGE   "Usage: execdir [--help] [--version] [-s] [path] [command...]"
 #define VERSION "0.1.0"
 
+// name:path record linked list
+struct list {
+    char *name;
+    char *path;
+
+    struct list *next;
+};
+
+// strdup wrapper
+char *xstrdup(char *s) {
+    char *str;
+
+    str = strdup(s);
+    if(!str) {
+        fprintf(stderr, "Cannot allocate memory: %s\n", strerror(errno));
+        exit(1);
+    }
+
+    return str;
+}
+
+// add a new name:path record on to the start of the list
+struct list *list_prepend(struct list *list, char *name, char *path) {
+    struct list *new_list;
+
+    new_list = malloc(sizeof(struct list));
+    if(!new_list) {
+        fprintf(stderr, "Cannot allocate memory: %s\n", strerror(errno));
+        exit(1);
+    }
+
+    new_list->name = xstrdup(name);
+    new_list->path = xstrdup(path);
+    new_list->next = list;
+
+    return new_list;
+}
+
+// remove a name:path record from the list
+struct list *list_remove(struct list *list, char *name) {
+    struct list **prev_list = &list;
+    struct list *current_list = NULL;
+
+    while(*prev_list) {
+        current_list = *prev_list;
+
+        if(!strcmp(name, current_list->name)) {
+            *prev_list = current_list->next;
+            free(current_list->name);
+            free(current_list->path);
+            free(current_list);
+            break;
+        } else
+            prev_list = &current_list->next;
+    }
+
+    return list;
+}
+
+// reverse the list
+struct list *list_reverse(struct list *list) {
+    struct list *prev_list = NULL;
+    struct list *next_list;
+
+    while(list) {
+        next_list = list->next;
+        list->next = prev_list;
+        prev_list = list;
+        list = next_list;
+    }
+
+    return prev_list;
+}
+
+// free all the memory used by the list
+void list_free(struct list *list) {
+    for(struct list *next_list; list; list = next_list) {
+        next_list = list->next;
+        free(list->name);
+        free(list->path);
+        free(list);
+    }
+}
+
 // getcwd wrapper
 char *xgetcwd() {
     char *cwd;
