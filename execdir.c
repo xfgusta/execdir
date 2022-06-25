@@ -5,9 +5,12 @@
 #include <string.h>
 #include <errno.h>
 #include <getopt.h>
+#include <sys/types.h>
+#include <pwd.h>
 
-#define USAGE   "Usage: execdir [--help] [--version] [-s] [path] [command...]"
+#define USAGE "Usage: execdir [--help] [--version] [-s] [path] [command...]"
 #define VERSION "0.1.0"
+#define EXECDIR_FILE ".execdir"
 
 // name:path record linked list
 struct list {
@@ -91,6 +94,51 @@ void list_free(struct list *list) {
         free(list->path);
         free(list);
     }
+}
+
+// get the current user's home directory
+char *get_home_dir() {
+    char *home_dir;
+
+    home_dir = getenv("HOME");
+
+    // fall back to the passwd file
+    if(!home_dir) {
+        uid_t uid;
+        struct passwd *pw;
+
+        uid = getuid();
+        pw = getpwuid(uid);
+
+        if(!pw)
+            return NULL;
+
+        home_dir = pw->pw_dir;
+    }
+
+    return home_dir;
+}
+
+// return execdir file path
+char *get_execdir_file_path() {
+    char *path;
+    char *home_dir;
+
+    home_dir = get_home_dir();
+    if(!home_dir) {
+        fprintf(stderr, "Cannot get the home directory\n");
+        exit(1);
+    }
+
+    path = malloc(strlen(home_dir) + strlen("/" EXECDIR_FILE) + 1);
+    if(!path) {
+        fprintf(stderr, "Cannot allocate memory: %s", strerror(errno));
+        exit(1);
+    }
+
+    sprintf(path, "%s/" EXECDIR_FILE, home_dir);
+
+    return path;
 }
 
 // getcwd wrapper
