@@ -141,6 +141,58 @@ char *get_execdir_file_path() {
     return path;
 }
 
+// parse execdir file and return a list of name:path records
+struct list *get_list_from_file(char *filename) {
+    struct list *list = NULL;
+    FILE *file;
+    char *line = NULL;
+    size_t len;
+
+    file = fopen(filename, "r");
+    if(!file) {
+        // return NULL when the file doesn't exist
+        if(errno == ENOENT)
+            return NULL;
+
+        fprintf(stderr, "Cannot open \"%s\" file: %s\n", filename,
+                strerror(errno));
+        exit(1);
+    }
+
+    while(getline(&line, &len, file) != -1) {
+        char *name = line;
+        char *path;
+        int before_newline;
+
+        path = strchr(line, ':');
+
+        // delimiter missing
+        if(!path)
+            continue;
+
+        // end the name string before the delimiter and skip the delimiter
+        *path++ = '\0';
+
+        // end the path string before the trailing newline
+        before_newline = strcspn(path, "\n");
+        path[before_newline] = '\0';
+
+        // name or path missing
+        if(!(*name && *path))
+            continue;
+
+        list = list_prepend(list, name, path);
+    }
+
+    free(line);
+    fclose(file);
+
+    // reverse the list to match the order in the file
+    list = list_reverse(list);
+
+    return list;
+}
+
 // getcwd wrapper
 char *xgetcwd() {
     char *cwd;
