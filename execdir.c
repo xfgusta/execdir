@@ -7,6 +7,8 @@
 #include <getopt.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #define USAGE "Usage: execdir [--help] [--version] [-s] [path] [command...]"
 #define VERSION "0.1.0"
@@ -300,8 +302,11 @@ void help_message() {
 int main(int argc, char **argv) {
     int opt;
     int opt_index = 0;
+    char *execdir_file_path = 0;
+    struct list *list = NULL;
     char *cwd;
     char *path;
+    struct stat st;
     int help_opt = 0;
     int version_opt = 0;
     int sh_exec_opt = 0;
@@ -335,6 +340,10 @@ int main(int argc, char **argv) {
         exit(0);
     }
 
+    // load aliases
+    execdir_file_path = get_execdir_file_path();
+    list = get_list_from_file(execdir_file_path);
+
     if(argc < 2) {
         usage_message();
     }
@@ -343,6 +352,17 @@ int main(int argc, char **argv) {
     path = *argv;
     argc -= 1;
     argv += 1;
+
+    // try to get an alias if path doesn't exist
+    if(stat(path, &st) == -1 || !S_ISDIR(st.st_mode)) {
+        char *name = path;
+
+        path = list_get_path_by_name(list, name);
+        if(!path) {
+            fprintf(stderr, "Path or alias for path \"%s\" not found\n", name);
+            exit(1);
+        }
+    }
 
     cwd = xgetcwd();
     if(!cwd) {
@@ -360,6 +380,8 @@ int main(int argc, char **argv) {
     setenv("PWD", path, 1);
 
     free(cwd);
+    free(execdir_file_path);
+    list_free(list);
 
     exit(sh_exec_opt ? sh_exec_cmd(argc, argv) : exec_cmd(argv));
 }
