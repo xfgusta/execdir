@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 
 #define USAGE "Usage: execdir [--help] [--version] [-s] [-a NAME PATH] " \
-              "[ARGS...]"
+              "[-r NAME] [ARGS...]"
 #define VERSION "0.1.0"
 #define EXECDIR_FILE ".execdir"
 
@@ -314,7 +314,8 @@ void help_message() {
            "  --help               display this help and exit\n"
            "  --version            output version information and exit\n"
            "  -s, --shell          execute the command as a shell command\n"
-           "  -a, --add NAME PATH  add an alias for a path\n\n"
+           "  -a, --add NAME PATH  add an alias for a path\n"
+           "  -r, --remove NAME    remove an alias\n\n"
            "Report bugs to <https://github.com/xfgusta/execdir/issues>\n");
     exit(0);
 }
@@ -331,22 +332,27 @@ int main(int argc, char **argv) {
     int version_opt = 0;
     int sh_exec_opt = 0;
     int add_alias_opt = 0;
+    int rm_alias_opt = 0;
 
     struct option long_opts[] = {
         {"help",    no_argument, &help_opt,      1},
         {"version", no_argument, &version_opt,   1},
         {"shell",   no_argument, &sh_exec_opt,   1},
         {"add",     no_argument, &add_alias_opt, 1},
+        {"remove",  no_argument, &rm_alias_opt,  1},
         {0,         0,           0,              0}
     };
 
-    while((opt = getopt_long(argc, argv, "sa", long_opts, &opt_index)) != -1) {
+    while((opt = getopt_long(argc, argv, "sar", long_opts, &opt_index)) != -1) {
         switch(opt) {
             case 's':
                 sh_exec_opt = 1;
                 break;
             case 'a':
                 add_alias_opt = 1;
+                break;
+            case 'r':
+                rm_alias_opt = 1;
                 break;
             case '?':
                 usage_message();
@@ -379,9 +385,18 @@ int main(int argc, char **argv) {
         list = list_reverse(list);
 
         save_list_to_file(execdir_file_path, list);
+    } else if(rm_alias_opt) {
+        if(argc != 1) {
+            fprintf(stderr, "execdir --remove requires one argument\n");
+            exit(1);
+        }
+
+        list = list_remove(list, argv[0]);
+
+        save_list_to_file(execdir_file_path, list);
     }
 
-    if(add_alias_opt) {
+    if(add_alias_opt || rm_alias_opt) {
         free(execdir_file_path);
         list_free(list);
         exit(0);
