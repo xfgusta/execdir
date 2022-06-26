@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 
 #define USAGE "Usage: execdir [--help] [--version] [-s] [-a NAME PATH] " \
-              "[-r NAME] [ARGS...]"
+              "[-r NAME] [-l] [ARGS...]"
 #define VERSION "0.1.0"
 #define EXECDIR_FILE ".execdir"
 
@@ -315,7 +315,8 @@ void help_message() {
            "  --version            output version information and exit\n"
            "  -s, --shell          execute the command as a shell command\n"
            "  -a, --add NAME PATH  add an alias for a path\n"
-           "  -r, --remove NAME    remove an alias\n\n"
+           "  -r, --remove NAME    remove an alias\n"
+           "  -l, --list           list all aliases\n\n"
            "Report bugs to <https://github.com/xfgusta/execdir/issues>\n");
     exit(0);
 }
@@ -333,6 +334,7 @@ int main(int argc, char **argv) {
     int sh_exec_opt = 0;
     int add_alias_opt = 0;
     int rm_alias_opt = 0;
+    int ls_alias_opt = 0;
 
     struct option long_opts[] = {
         {"help",    no_argument, &help_opt,      1},
@@ -340,10 +342,12 @@ int main(int argc, char **argv) {
         {"shell",   no_argument, &sh_exec_opt,   1},
         {"add",     no_argument, &add_alias_opt, 1},
         {"remove",  no_argument, &rm_alias_opt,  1},
+        {"list",    no_argument, &ls_alias_opt,  1},
         {0,         0,           0,              0}
     };
 
-    while((opt = getopt_long(argc, argv, "sar", long_opts, &opt_index)) != -1) {
+    while((opt = getopt_long(argc, argv, "sarl", long_opts,
+                             &opt_index)) != -1) {
         switch(opt) {
             case 's':
                 sh_exec_opt = 1;
@@ -353,6 +357,9 @@ int main(int argc, char **argv) {
                 break;
             case 'r':
                 rm_alias_opt = 1;
+                break;
+            case 'l':
+                ls_alias_opt = 1;
                 break;
             case '?':
                 usage_message();
@@ -394,9 +401,23 @@ int main(int argc, char **argv) {
         list = list_remove(list, argv[0]);
 
         save_list_to_file(execdir_file_path, list);
+    } else if(ls_alias_opt) {
+        size_t max_name_len = 0;
+
+        // get the longest alias name length
+        for(struct list *dir = list; dir; dir = dir->next) {
+            size_t len = strlen(dir->name);
+            if(len > max_name_len)
+                max_name_len = len;
+        }
+
+        for(struct list *dir = list; dir; dir = dir->next) {
+            int count = 4 + max_name_len - strlen(dir->name);
+            printf("%s%*s%s\n", dir->name, count, "", dir->path);
+        }
     }
 
-    if(add_alias_opt || rm_alias_opt) {
+    if(add_alias_opt || rm_alias_opt || ls_alias_opt) {
         free(execdir_file_path);
         list_free(list);
         exit(0);
