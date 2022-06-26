@@ -50,6 +50,16 @@ struct list *list_prepend(struct list *list, char *name, char *path) {
     return new_list;
 }
 
+// return a path found by name in the list
+char *list_get_path_by_name(struct list *list, char *name) {
+    for(struct list *dir = list; dir; dir = dir->next) {
+        if(!strcmp(name, dir->name))
+            return dir->path;
+    }
+
+    return NULL;
+}
+
 // remove a name:path record from the list
 struct list *list_remove(struct list *list, char *name) {
     struct list **prev_list = &list;
