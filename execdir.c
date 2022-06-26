@@ -10,7 +10,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#define USAGE "Usage: execdir [--help] [--version] [-s] [path] [command...]"
+#define USAGE "Usage: execdir [--help] [--version] [-s] [-a NAME PATH] " \
+              "[ARGS...]"
 #define VERSION "0.1.0"
 #define EXECDIR_FILE ".execdir"
 
@@ -205,6 +206,24 @@ struct list *get_list_from_file(char *filename) {
     return list;
 }
 
+// save a list to the execdir file
+void save_list_to_file(char *filename, struct list *list) {
+    FILE *file;
+
+    file = fopen(filename, "w");
+    if(!file) {
+        fprintf(stderr, "Cannot open \"%s\" file: %s\n", filename,
+                strerror(errno));
+        exit(1);
+    }
+
+    for(struct list *dir = list; dir; dir = dir->next) {
+        fprintf(file, "%s:%s\n", dir->name, dir->path);
+    }
+
+    fclose(file);
+}
+
 // getcwd wrapper
 char *xgetcwd() {
     char *cwd;
@@ -292,9 +311,10 @@ void usage_message() {
 void help_message() {
     printf(USAGE "\n\n"
            "Options:\n"
-           "  --help       display this help and exit\n"
-           "  --version    output version information and exit\n"
-           "  -s, --shell  execute the command as a shell command\n\n"
+           "  --help               display this help and exit\n"
+           "  --version            output version information and exit\n"
+           "  -s, --shell          execute the command as a shell command\n"
+           "  -a, --add NAME PATH  add an alias for a path\n\n"
            "Report bugs to <https://github.com/xfgusta/execdir/issues>\n");
     exit(0);
 }
@@ -310,18 +330,23 @@ int main(int argc, char **argv) {
     int help_opt = 0;
     int version_opt = 0;
     int sh_exec_opt = 0;
+    int add_alias_opt = 0;
 
     struct option long_opts[] = {
-        {"help",    no_argument, &help_opt,    1},
-        {"version", no_argument, &version_opt, 1},
-        {"shell",   no_argument, &sh_exec_opt, 1},
-        {0,         0,           0,            0}
+        {"help",    no_argument, &help_opt,      1},
+        {"version", no_argument, &version_opt,   1},
+        {"shell",   no_argument, &sh_exec_opt,   1},
+        {"add",     no_argument, &add_alias_opt, 1},
+        {0,         0,           0,              0}
     };
 
-    while((opt = getopt_long(argc, argv, "s", long_opts, &opt_index)) != -1) {
+    while((opt = getopt_long(argc, argv, "sa", long_opts, &opt_index)) != -1) {
         switch(opt) {
             case 's':
                 sh_exec_opt = 1;
+                break;
+            case 'a':
+                add_alias_opt = 1;
                 break;
             case '?':
                 usage_message();
@@ -343,6 +368,24 @@ int main(int argc, char **argv) {
     // load aliases
     execdir_file_path = get_execdir_file_path();
     list = get_list_from_file(execdir_file_path);
+
+    if(add_alias_opt) {
+        if(argc != 2) {
+            fprintf(stderr, "execdir --add requires two arguments\n");
+            exit(1);
+        }
+
+        list = list_prepend(list, argv[0], argv[1]);
+        list = list_reverse(list);
+
+        save_list_to_file(execdir_file_path, list);
+    }
+
+    if(add_alias_opt) {
+        free(execdir_file_path);
+        list_free(list);
+        exit(0);
+    }
 
     if(argc < 2) {
         usage_message();
