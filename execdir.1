@@ -4,21 +4,36 @@
 execdir \- execute a command in a specific directory 
 
 .SH SYNOPSIS
-\fBexecdir\fR [\fB--help\fR] [\fB--version\fR] [\fB-s\fR] [\fIpath\fR] [\fIcommand\fR...]
+\fBexecdir\fR [\fB--help\fR] [\fB--version\fR] [\fB-s\fR] [\fB-a\fR \fINAME\fR \fIPATH\fR] [\fB-r\fR \fINAME\fR] [\fB-l\fR] [\fIARGS\fR...]
 
 .SH DESCRIPTION
-\fBexecdir\fR is a tool that lets you run a command in a specific directory.
+\fBexecdir\fR is a tool that lets you run a command in a specific directory. It supports shell commands and path aliases. \fBexecdir\fR will try to get an alias if path doesn't exist.
 
 .SH OPTIONS
-
-.IP "\fB-s\fR, \fB--shell\fR"
-Execute the command as a shell command
 
 .IP "\fB--help\fR"
 Display the help message and exit
 
 .IP "\fB--version\fR"
 Display the version number of execdir and exit
+
+.IP "\fB-s\fR, \fB--shell\fR"
+Execute the command as a shell command
+
+.IP "\fB-a\fR, \fB--add\fR \fINAME\fR \fIPATH\fR"
+Create an alias for a path
+
+.IP "\fB-r\fR, \fB--remove\fR \fINAME\fR"
+Delete an alias
+
+.IP "\fB-l\fR, \fB--list\fR"
+List all aliases
+
+.SH EXECDIR FILE
+
+All aliases are defined in the \fB~/.execdir\fR file. Each line contains an alias name and a path delimited by a colon:
+
+    name:path
 
 .SH AUTHOR
 Gustavo Costa <xfgusta@gmail.com>
