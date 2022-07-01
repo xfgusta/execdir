@@ -12,7 +12,7 @@
 
 #define USAGE "Usage: execdir [--help] [--version] [-s] [-a NAME PATH] " \
               "[-r NAME] [-l] [ARGS...]"
-#define VERSION "0.1.0"
+#define VERSION "0.2.0"
 #define EXECDIR_FILE ".execdir"
 
 // name:path record linked list
