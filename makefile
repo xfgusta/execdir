@@ -14,16 +14,16 @@ execdir: execdir.c
 install: execdir
 	mkdir -p $(DESTDIR)$(BINDIR)
 	$(INSTALL) execdir $(DESTDIR)$(BINDIR)
-	ln -f -s execdir $(DESTDIR)$(BINDIR)/xdir
+	ln -f -s execdir $(DESTDIR)$(BINDIR)/x
 	mkdir -p $(DESTDIR)$(MANDIR)/man1
 	$(INSTALL_MAN) execdir.1 $(DESTDIR)$(MANDIR)/man1
-	ln -f -s execdir.1 $(DESTDIR)$(MANDIR)/man1/xdir.1
+	ln -f -s execdir.1 $(DESTDIR)$(MANDIR)/man1/x.1
 
 uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/execdir
-	rm -f $(DESTDIR)$(BINDIR)/xdir
+	rm -f $(DESTDIR)$(BINDIR)/x
 	rm -f $(DESTDIR)$(MANDIR)/man1/execdir.1
-	rm -f $(DESTDIR)$(MANDIR)/man1/xdir.1
+	rm -f $(DESTDIR)$(MANDIR)/man1/x.1
 
 clean:
 	rm -f execdir

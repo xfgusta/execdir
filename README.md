@@ -47,7 +47,7 @@ Delete an alias:
 $ execdir -r nq
 ```
 
-There's also a symlink called **xdir**, so you can type less using it.
+There's also a symlink called **x**, so you can type less using it.
 
 ## Installation
 
