@@ -4,14 +4,13 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
-#include <getopt.h>
 #include <sys/types.h>
 #include <pwd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#define USAGE "Usage: execdir [--help] [--version] [-s] [-a NAME PATH] " \
-              "[-r NAME] [-l] [ARGS...]"
+#define USAGE "Usage: execdir [-h] [-v] [-s] [-a NAME PATH] [-r NAME] [-l] " \
+              "[ARGS...]"
 #define VERSION "0.2.0"
 #define EXECDIR_FILE ".execdir"
 
@@ -311,19 +310,18 @@ void usage_message() {
 void help_message() {
     printf(USAGE "\n\n"
            "Options:\n"
-           "  --help               display this help and exit\n"
-           "  --version            output version information and exit\n"
-           "  -s, --shell          execute the command as a shell command\n"
-           "  -a, --add NAME PATH  add an alias for a path\n"
-           "  -r, --remove NAME    remove an alias\n"
-           "  -l, --list           list all aliases\n\n"
+           "  -h            display this help and exit\n"
+           "  -v            output version information and exit\n"
+           "  -s            execute the command as a shell command\n"
+           "  -a NAME PATH  add an alias for a path\n"
+           "  -r NAME       remove an alias\n"
+           "  -l            list all aliases\n\n"
            "Report bugs to <https://github.com/xfgusta/execdir/issues>\n");
     exit(0);
 }
 
 int main(int argc, char **argv) {
     int opt;
-    int opt_index = 0;
     char *execdir_file_path = 0;
     struct list *list = NULL;
     char *cwd;
@@ -336,19 +334,14 @@ int main(int argc, char **argv) {
     int rm_alias_opt = 0;
     int ls_alias_opt = 0;
 
-    struct option long_opts[] = {
-        {"help",    no_argument, &help_opt,      1},
-        {"version", no_argument, &version_opt,   1},
-        {"shell",   no_argument, &sh_exec_opt,   1},
-        {"add",     no_argument, &add_alias_opt, 1},
-        {"remove",  no_argument, &rm_alias_opt,  1},
-        {"list",    no_argument, &ls_alias_opt,  1},
-        {0,         0,           0,              0}
-    };
-
-    while((opt = getopt_long(argc, argv, "sarl", long_opts,
-                             &opt_index)) != -1) {
+    while((opt = getopt(argc, argv, "hvsarl")) != -1) {
         switch(opt) {
+            case 'h':
+                help_opt = 1;
+                break;
+            case 'v':
+                version_opt = 1;
+                break;
             case 's':
                 sh_exec_opt = 1;
                 break;
@@ -384,7 +377,7 @@ int main(int argc, char **argv) {
 
     if(add_alias_opt) {
         if(argc != 2) {
-            fprintf(stderr, "execdir --add requires two arguments\n");
+            fprintf(stderr, "execdir -a requires two arguments\n");
             exit(1);
         }
 
@@ -394,7 +387,7 @@ int main(int argc, char **argv) {
         save_list_to_file(execdir_file_path, list);
     } else if(rm_alias_opt) {
         if(argc != 1) {
-            fprintf(stderr, "execdir --remove requires one argument\n");
+            fprintf(stderr, "execdir -r requires one argument\n");
             exit(1);
         }
 
