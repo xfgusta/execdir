@@ -356,8 +356,7 @@ int main(int argc, char **argv) {
                 ls_alias_opt = 1;
                 break;
             case '?':
-                usage_message();
-                break;
+                exit(EXIT_FAILURE);
         }
     }
 
