@@ -10,8 +10,12 @@
 
 #define USAGE "Usage: execdir [-h] [-v] [-s] [-a NAME PATH] [-r NAME] [-l] " \
               "[ARGS...]"
+
 #define VERSION "0.2.0"
+
 #define EXECDIR_FILE ".execdir"
+
+#define print_error(...) fprintf(stderr, "execdir: " __VA_ARGS__);
 
 // name:path record linked list
 struct list {
@@ -27,7 +31,7 @@ char *xstrdup(char *s) {
 
     str = strdup(s);
     if(!str) {
-        fprintf(stderr, "Cannot allocate memory: %s\n", strerror(errno));
+        print_error("cannot allocate memory: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
 
@@ -40,7 +44,7 @@ struct list *list_prepend(struct list *list, char *name, char *path) {
 
     new_list = malloc(sizeof(struct list));
     if(!new_list) {
-        fprintf(stderr, "Cannot allocate memory: %s\n", strerror(errno));
+        print_error("cannot allocate memory: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
 
@@ -137,13 +141,13 @@ char *get_execdir_file_path() {
 
     home_dir = get_home_dir();
     if(!home_dir) {
-        fprintf(stderr, "Cannot get the home directory\n");
+        print_error("cannot get the home directory\n");
         exit(EXIT_FAILURE);
     }
 
     path = malloc(strlen(home_dir) + strlen("/" EXECDIR_FILE) + 1);
     if(!path) {
-        fprintf(stderr, "Cannot allocate memory: %s", strerror(errno));
+        print_error("cannot allocate memory: %s", strerror(errno));
         exit(EXIT_FAILURE);
     }
 
@@ -165,8 +169,7 @@ struct list *get_list_from_file(char *filename) {
         if(errno == ENOENT)
             return NULL;
 
-        fprintf(stderr, "Cannot open \"%s\" file: %s\n", filename,
-                strerror(errno));
+        print_error("cannot open \"%s\" file: %s\n", filename, strerror(errno));
         exit(EXIT_FAILURE);
     }
 
@@ -210,8 +213,7 @@ void save_list_to_file(char *filename, struct list *list) {
 
     file = fopen(filename, "w");
     if(!file) {
-        fprintf(stderr, "Cannot open \"%s\" file: %s\n", filename,
-                strerror(errno));
+        print_error("cannot open \"%s\" file: %s\n", filename, strerror(errno));
         exit(EXIT_FAILURE);
     }
 
@@ -274,13 +276,13 @@ int sh_exec_cmd(int argc, char **argv) {
 
     cmd = argv_to_str(argc, argv);
     if(!cmd) {
-        fprintf(stderr, "Cannot allocate memory for command string\n");
+        print_error("cannot allocate memory for command string\n");
         exit(EXIT_FAILURE);
     }
 
     status = system(cmd);
     if(status == -1) {
-        fprintf(stderr, "Failed to execute command: %s\n", strerror(errno));
+        print_error("failed to execute command: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
 
@@ -294,7 +296,7 @@ int exec_cmd(char **argv) {
 
     status = execvp(*argv, argv);
     if(status == -1) {
-        fprintf(stderr, "Failed to execute command: %s\n", strerror(errno));
+        print_error("failed to execute command: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
 
@@ -376,7 +378,7 @@ int main(int argc, char **argv) {
 
     if(add_alias_opt) {
         if(argc != 2) {
-            fprintf(stderr, "execdir -a requires two arguments\n");
+            print_error("-a requires two arguments\n");
             exit(EXIT_FAILURE);
         }
 
@@ -386,7 +388,7 @@ int main(int argc, char **argv) {
         save_list_to_file(execdir_file_path, list);
     } else if(rm_alias_opt) {
         if(argc != 1) {
-            fprintf(stderr, "execdir -r requires one argument\n");
+            print_error("-r requires one argument\n");
             exit(EXIT_FAILURE);
         }
 
@@ -430,19 +432,19 @@ int main(int argc, char **argv) {
 
         path = list_get_path_by_name(list, name);
         if(!path) {
-            fprintf(stderr, "Path or alias for path \"%s\" not found\n", name);
+            print_error("path or alias for path \"%s\" not found\n", name);
             exit(EXIT_FAILURE);
         }
     }
 
     cwd = xgetcwd();
     if(!cwd) {
-        fprintf(stderr, "Cannot get the current working directory\n");
+        print_error("cannot get the current working directory\n");
         exit(EXIT_FAILURE);
     }
 
     if(chdir(path) == -1) {
-        fprintf(stderr, "Cannot change directory: %s\n", strerror(errno));
+        print_error("cannot change directory: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
 
