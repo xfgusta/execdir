@@ -66,9 +66,10 @@ char *list_get_path_by_name(struct list *list, char *name) {
 }
 
 // remove a name:path record from the list
-struct list *list_remove(struct list *list, char *name) {
+struct list *list_remove(struct list *list, char *name, int *found) {
     struct list **prev_list = &list;
     struct list *current_list = NULL;
+    *found = 0;
 
     while(*prev_list) {
         current_list = *prev_list;
@@ -78,6 +79,7 @@ struct list *list_remove(struct list *list, char *name) {
             free(current_list->name);
             free(current_list->path);
             free(current_list);
+            *found = 1;
             break;
         } else
             prev_list = &current_list->next;
@@ -386,12 +388,18 @@ int main(int argc, char **argv) {
 
         save_list_to_file(execdir_file_path, list);
     } else if(rm_alias_opt) {
+        int found;
+
         if(argc != 1) {
             print_error("-r requires one argument\n");
             exit(EXIT_FAILURE);
         }
 
-        list = list_remove(list, argv[0]);
+        list = list_remove(list, argv[0], &found);
+        if(!found) {
+            print_error("\"%s\" alias not found\n", argv[0]);
+            exit(EXIT_FAILURE);
+        }
 
         save_list_to_file(execdir_file_path, list);
     } else if(ls_alias_opt) {
