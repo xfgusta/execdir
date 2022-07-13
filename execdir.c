@@ -290,7 +290,7 @@ int sh_exec_cmd(int argc, char **argv) {
 
     free(cmd);
 
-    return WIFEXITED(status) ? WEXITSTATUS(status) : 1;
+    return WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE;
 }
 
 int exec_cmd(char **argv) {
