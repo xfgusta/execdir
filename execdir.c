@@ -11,7 +11,7 @@
 #define USAGE "Usage: execdir [-h] [-v] [-s] [-a NAME PATH] [-r NAME] [-l] " \
               "[ARGS...]"
 
-#define VERSION "0.2.0"
+#define VERSION "0.3.0"
 
 #define EXECDIR_FILE ".execdir"
 
