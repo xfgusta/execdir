@@ -28,3 +28,4 @@ uninstall:
 clean:
 	rm -f execdir
 
+.PHONY: install uninstall clean
